@@ -19,17 +19,20 @@ data=[]
 for line in f:
     cols = line.split("\t")
     corpus.append(cols[2])
+    if(cols[0]>cols[1]):#positive tweets
+        cols[0]=1
+    elif (cols[1]>cols[0]):#negative tweets
+        cols[0]=0
+    else:
+        pass
+        
     data.append(cols[0])
 f.close()
-
 
 # -----------------------------------LOGISTIC RERGRESSION-----------------------------------
 
 bow_vectorizer = CountVectorizer()
 bow = bow_vectorizer.fit_transform(corpus)
-#test_bow = bow[2112:, :]
-#train_bow = bow[:2112, :]
-#data=data[:2112]
 X_train, X_test, y_train, y_test = train_test_split(bow,data, train_size=0.80, random_state=1234)
 log_model = LogisticRegression()
 log_model = log_model.fit(X_train, y_train)
@@ -78,13 +81,9 @@ y_pred = pac.predict(X_test)
 print("TF-IDF --------->  " + str(accuracy_score(y_test, y_pred) * 100) + "%")
 
 bow_vectorizer = CountVectorizer()
-# bow = bow_vectorizer.fit_transform(corpus)
 tfidf_vectorizer = TfidfVectorizer()
-# tfidf = tfidf_vectorizer.fit_transform(corpus)
 hy_vectorizer = FeatureUnion([('bow', bow_vectorizer), ('tfidf', tfidf_vectorizer)])
 hy = hy_vectorizer.fit_transform(corpus)
-# hybrid = hstack([tfidf, bow])
-# hy = hybrid.tocsr()
 X_train, X_test, y_train, y_test = train_test_split(hy, data, train_size=0.80, test_size=0.20, random_state=1234)
 pac = PassiveAggressiveClassifier(max_iter=1000, random_state=0)
 pac = pac.fit(X=X_train, y=y_train)
@@ -114,13 +113,9 @@ print("TF-IDF --------->  " + str(accuracy_score(y_test, y_pred) * 100) + "%")
 
 
 bow_vectorizer = CountVectorizer()
-# bow = bow_vectorizer.fit_transform(corpus)
 tfidf_vectorizer = TfidfVectorizer()
-# tfidf = tfidf_vectorizer.fit_transform(corpus)
 hy_vectorizer = FeatureUnion([('bow', bow_vectorizer), ('tfidf', tfidf_vectorizer)])
 hy = hy_vectorizer.fit_transform(corpus)
-# hybrid = hstack([tfidf, bow])
-# hy = hybrid.tocsr()
 X_train, X_test, y_train, y_test = train_test_split(hy, data, train_size=0.80, test_size=0.20, random_state=1234)
 nb = MultinomialNB()
 nb = nb.fit(X=X_train, y=y_train)
@@ -151,13 +146,9 @@ print("TF-IDF --------->  " + str(accuracy_score(y_test, y_pred) * 100) + "%")
 
 
 bow_vectorizer = CountVectorizer()
-# bow = bow_vectorizer.fit_transform(corpus)
 tfidf_vectorizer = TfidfVectorizer()
-# tfidf = tfidf_vectorizer.fit_transform(corpus)
 hy_vectorizer = FeatureUnion([('bow', bow_vectorizer), ('tfidf', tfidf_vectorizer)])
 hy = hy_vectorizer.fit_transform(corpus)
-# hybrid = hstack([tfidf, bow])
-# hy = hybrid.tocsr()
 X_train, X_test, y_train, y_test = train_test_split(hy, data, train_size=0.80, test_size=0.20, random_state=1234)
 per = Perceptron(tol=1e-3, random_state=0)
 per = per.fit(X=X_train, y=y_train)
@@ -188,13 +179,9 @@ print("TF-IDF --------->  " + str(accuracy_score(y_test, y_pred) * 100) + "%")
 
 
 bow_vectorizer = CountVectorizer()
-# bow = bow_vectorizer.fit_transform(corpus)
 tfidf_vectorizer = TfidfVectorizer()
-# tfidf = tfidf_vectorizer.fit_transform(corpus)
 hy_vectorizer = FeatureUnion([('bow', bow_vectorizer), ('tfidf', tfidf_vectorizer)])
 hy = hy_vectorizer.fit_transform(corpus)
-# hybrid = hstack([tfidf, bow])
-# hy = hybrid.tocsr()
 X_train, X_test, y_train, y_test = train_test_split(hy, data, train_size=0.80, test_size=0.20, random_state=1234)
 rc = RidgeClassifier()
 rc = rc.fit(X=X_train, y=y_train)
@@ -225,13 +212,9 @@ print("TF-IDF --------->  " + str(accuracy_score(y_test, y_pred) * 100) + "%")
 
 
 bow_vectorizer = CountVectorizer()
-# bow = bow_vectorizer.fit_transform(corpus)
 tfidf_vectorizer = TfidfVectorizer()
-# tfidf = tfidf_vectorizer.fit_transform(corpus)
 hy_vectorizer = FeatureUnion([('bow', bow_vectorizer), ('tfidf', tfidf_vectorizer)])
 hy = hy_vectorizer.fit_transform(corpus)
-# hybrid = hstack([tfidf, bow])
-# hy = hybrid.tocsr()
 X_train, X_test, y_train, y_test = train_test_split(hy, data, train_size=0.80, test_size=0.20, random_state=1234)
 LSVC = LinearSVC()
 LSVC = LSVC.fit(X_train, y_train)
@@ -262,13 +245,9 @@ print("TF-IDF --------->  " + str(accuracy_score(y_test, y_pred) * 100) + "%")
 
 
 bow_vectorizer = CountVectorizer()
-# bow = bow_vectorizer.fit_transform(corpus)
 tfidf_vectorizer = TfidfVectorizer()
-# tfidf = tfidf_vectorizer.fit_transform(corpus)
 hy_vectorizer = FeatureUnion([('bow', bow_vectorizer), ('tfidf', tfidf_vectorizer)])
 hy = hy_vectorizer.fit_transform(corpus)
-# hybrid = hstack([tfidf, bow])
-# hy = hybrid.tocsr()
 
 X_train, X_test, y_train, y_test = train_test_split(hy, data, train_size=0.80, test_size=0.20, random_state=1234)
 clf = tree.DecisionTreeClassifier()
@@ -276,12 +255,3 @@ clf = clf.fit(X=X_train, y=y_train)
 y_pred = clf.predict(X_test)
 print("Bow + Tf-idf --->  " + str(accuracy_score(y_test, y_pred) * 100) + "%")
 
-
-# print(y_pred)
-# test_pred = log_model.predict(test_bow)  ### PREDICTING TEST DATA SET ###
-# print(test_pred)
-
-# x_train, x_test, y_train, y_test = train_test_split(data2, data_labels, train_size=0.80)
-# tweet_w2v = Word2Vec(size=200, min_count=10)
-# tweet_w2v.build_vocab([x.split() for x in tqdm(x_train)])
-# tweet_w2v.train([x.split() for x in tqdm(x_train)])
