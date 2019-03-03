@@ -6,7 +6,6 @@ Created on Thu Sep 20 19:30:55 2018
 """
 import re
 import nltk
-import csv
 import numpy as np
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -86,13 +85,7 @@ def replace_slang(text):
         return slang_map[match.group(0)]
 
     return(re.sub('|'.join(r'\b%s\b' % re.escape(s) for s in slang_map), replace, text))
-    # for word in text.split():
-    #     if word in slang_map.keys():
-    #         print(word + ' ' + slang_map[word])
-    #         text = text.replace(' ' + word, ' ' + slang_map[word])
-    #         print(text)
-    # return text
-
+    
 def removestopwords(tweet):
     stop_words = set(stopwords.words('english'))
     word_tokens = word_tokenize(tweet)
@@ -102,7 +95,7 @@ def removestopwords(tweet):
         if w not in stop_words:
             filtered_sentence.append(w)
 
-    #print(filtered_sentence)
+    
     return filtered_sentence
 
 
@@ -136,12 +129,11 @@ res=[]#list of all preprocessed tweets
 temp=['']#list of list of last tockenised record
 f = open("twitter4242.txt", 'r')
 f1=open("result.txt","w")
-f2=open("preprocessed.csv","w")
 
-wr=csv.writer(f2)
+
 for line in f:
     cols = line.split("\t")
-    # res.append(cells[2])
+    
     if(i>0):
         for i in range(2):
             f1.write(cols[i] + "\t")
@@ -152,146 +144,12 @@ for line in f:
         text = preprocess_tweet(text)
         text = ' '.join(unique_list(text.split()))
         text = removestopwords(text)
-        #res = ' '.join(text)
-        #print(text)
-
         temp[0]=text
         tweet=' '.join(text)
-        res.append(tweet)
-        #f1.write(cols[0]+" "+cols[1]+" "+tweet+"\n")
         f1.write(tweet+"\n")
-        wr.writerow(temp)
-        
-        #f1.write(res+"\n")
+       
         
        
         
     i=i+1
 
-from sklearn.feature_extraction.text import CountVectorizer
-bow_vectorizer = CountVectorizer(max_df=0.90, min_df=2, max_features=1000, stop_words='english')
-# bag-of-words feature matrix
-bow = bow_vectorizer.fit_transform(res)
-print(bow)
-
-
-#tfidf
-from sklearn.feature_extraction.text import TfidfVectorizer
-tfidf_vectorizer = TfidfVectorizer(max_df=0.90, min_df=2, max_features=1000, stop_words='english')
-# TF-IDF feature matrix
-tfidf = tfidf_vectorizer.fit_transform(res)
-print(tfidf)
-#gloVe
-'''file = "glove.6B.50d.txt"
-
-def loadGloveModel(gloveFile):
-    print ("Loading Glove Model")
-    
-     
-    with open(gloveFile, encoding="utf8" ) as f:
-       content = f.readlines()
-    model = {}
-    for line in content:
-        splitLine = line.split()
-        word = splitLine[0]
-        embedding = np.array([float(val) for val in splitLine[1:]])
-        model[word] = embedding
-    print ("Done.",len(model)," words loaded!")
-    return model
-     
-     
-model= loadGloveModel(file)   
- 
-print (model['hello'])
-from gensim.scripts.glove2word2vec import glove2word2vec
-glove2word2vec(glove_input_file=file, word2vec_output_file="gensim_glove_vectors.txt")
- 
-###Finally, read the word2vec txt to a gensim model using KeyedVectors:
- 
-from gensim.models.keyedvectors import KeyedVectors
-glove_model = KeyedVectors.load_word2vec_format("gensim_glove_vectors.txt", binary=False)
-'''
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, LSTM, Conv1D, MaxPooling1D, Dropout, Activation
-from keras.layers.embeddings import Embedding
-## Plotly
-
-# Others
-import nltk
-import string
-import numpy as np
-import pandas as pd
-from nltk.corpus import stopwords
-
-#embeddings
-embeddings_index = dict()
-f = open("glove.6B.100d.txt",encoding="utf8")
-for line in f:
-    values = line.split()
-    word = values[0]
-    coefs = np.asarray(values[1:], dtype='float32')
-    embeddings_index[word] = coefs
-f.close()
-print('Found %s word vectors.' % len(embeddings_index))
-t=Tokenizer()
-t.fit_on_texts(res)
-vocabulary_size=len(t.word_index)+1
-encoded_docs = t.texts_to_sequences(X)#encode words to integers
-print(encoded_docs)
-# pad documents to a max length of 4 words
-max_length = 4
-padded_docs = pad_sequences(encoded_docs, maxlen=max_length)#pad these words to same length
-print(padded_docs)
-embedding_matrix = np.zeros((vocabulary_size, 100))
-for word, index in t.word_index.items():
-    if index >vocabulary_size-1:
-        break
-    else:
-        embedding_vector = embeddings_index.get(word)
-        if embedding_vector is not None:
-            embedding_matrix[index] = embedding_vector
-X=[]
-y=[]
-f=open("result.txt","r")
-for line in f:
-    cols=line.split("\t")
-    X.append(cols[2])
-    y.append(cols[0])
-
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-## create model
-'''model = Sequential()
-e = Embedding(vocabulary_size, 100, weights=[embedding_matrix], input_length=4, trainable=False)
-model.add(e)
-model.add(Flatten())
-model.add(Dense(units=1, activation='sigmoid'))
-# compile the model
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-# summarize the model
-print(model.summary())
-# fit the model
-
-model.fit(padded_docs,y,batch_size=128,epochs=25)
-loss, accuracy = model.evaluate(padded_docs,np.array(y), verbose=0)
-print('Accuracy: %f' % (accuracy))
-'''
-
-'''#glove with logistic regression
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-tk = Tokenizer()
-tk.fit_on_texts(X)
-index_list = tk.texts_to_sequences(X)
-X_train = pad_sequences(index_list, maxlen=4)
-y_train = pad_sequences(index_list, maxlen=4)
-
-from sklearn.tree import DecisionTreeClassifier
-model_dt=DecisionTreeClassifier()
-model_dt.fit(X_train,y_train)
-pred_dt=model_dt.predict(X_test)
-from sklearn.metrics import classification_report
-print(classification_report(y_test,pred_dt))
-'''
